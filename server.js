@@ -7,6 +7,16 @@ require('dotenv').config();
 
 const app = express()
 
+// db
+
+mongoose.connect(process.env.DATABASE_CLOUD, { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+})
+.then( () => console.log(`Mongo atlas connected is connected on port ${port}`))
+.catch( (err) => console.log(err))
+
 // import routes 
 
 const authRoutes = require('./routes/auth')
