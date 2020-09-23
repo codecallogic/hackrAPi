@@ -40,7 +40,7 @@ exports.register = (req, res) => {
         .then( data => {
             console.log('Email submitted on SES', data)
             res.json({
-                message: `Email has been sent to ${email}. Follow the instructions to complete your registratioin`
+                success: `Email has been sent to ${email}. Follow the instructions to complete your registratioin`
             })
         })
         .catch( err => {
