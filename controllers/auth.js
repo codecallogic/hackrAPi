@@ -87,3 +87,32 @@ exports.registerActivate = (req, res) => {
         })
     })
 }
+
+exports.login = (req, res) => {
+    const {email, password} = req.body
+    console.table({email, password})
+    User.findOne({email}).exec( (err, user) => {
+        if(err || !user){
+            console.log(err)
+            return res.status(400).json({
+                error: 'User with that email does not exist. Please register'
+            })
+        }
+
+        if(!user.authenticate(password)){
+            return res.status(400).json({
+                error: 'Email and password do not match'
+            })
+        }
+
+        // generate token and send to client
+
+        const token = JWT.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: 60})
+        const {_id, name, email, role} = user
+        
+        return res.json({
+            token, 
+            user: {_id, name, email, role}}
+        )
+    })
+}
