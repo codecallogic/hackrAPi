@@ -3,6 +3,7 @@ const AWS = require('aws-sdk')
 const JWT = require('jsonwebtoken')
 const shortId = require('shortid')
 const { registerEmailParams } = require('../helpers/email')
+const expressJWT = require('express-jwt')
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -28,7 +29,7 @@ exports.register = (req, res) => {
         // Generate token with username, email and password
 
         const token = JWT.sign({ name, email, password}, process.env.JWT_ACCOUNT_ACTIVATION, {
-            expiresIn: '10m'
+            expiresIn: '10m',
         })
 
         // Send email
@@ -107,7 +108,7 @@ exports.login = (req, res) => {
 
         // generate token and send to client
 
-        const token = JWT.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
+        const token = JWT.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: '1h', algorithm: 'HS256'},)
         const {_id, name, email, role} = user
         
         return res.json({
@@ -116,3 +117,5 @@ exports.login = (req, res) => {
         )
     })
 }
+
+exports.requiresLogin = expressJWT({ secret: process.env.JWT_SECRET, algorithms: ['HS256']})
