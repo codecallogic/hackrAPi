@@ -4,6 +4,7 @@ const JWT = require('jsonwebtoken')
 const shortId = require('shortid')
 const { registerEmailParams, forgotPasswordEmailParams } = require('../helpers/email')
 const expressJWT = require('express-jwt')
+const _ = require('lodash')
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -193,5 +194,44 @@ exports.forgotPassword = (req, res) => {
 }
 
 exports.resetPassword = (req, res) => {
-    //
+    const {resetPasswordLink, newPassword} = req.body
+    if(resetPasswordLink){
+
+        // Check for expiration of token
+
+        JWT.verify(resetPasswordLink, process.env.JWT_RESET_PASSWORD, (err, success) => {
+            if(err){
+                return res.status(400).json({
+                    error: "Expired link please try again"
+                })
+            }
+        })
+        
+        User.findOne({resetPasswordLink}, (err, user) => {
+            if(err || !user){
+                return res.status(400).json({
+                    error: 'Invalid token. Try again'
+                })
+            }
+
+            const updateFields = {
+                password: newPassword,
+                resetPasswordLink: ''
+            }
+
+            user = _.extend(user, updateFields)
+
+            user.save((err, results) => {
+                if(err){
+                    return res.status(400).json({
+                        error: 'Password rest failed please try again'
+                    })
+                }
+
+                res.json({
+                    message: 'Your password has been reset. You can login with your new password'
+                })
+            })
+        })
+    }
 }
