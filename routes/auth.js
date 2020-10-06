@@ -12,8 +12,8 @@ const {register, registerActivate, login, forgotPassword, resetPassword} = requi
 router.post('/register', userRegisterValidator, runValidation, register)
 router.post('/register/activate', registerActivate)
 router.post('/login', userLoginValidator, runValidation, login)
-router.post('/forgot-password', forgotPasswordValidator, runValidation, forgotPassword)
-router.post('/reset-password', userResetPasswordValidator, runValidation, resetPassword)
+router.put('/forgot-password', forgotPasswordValidator, runValidation, forgotPassword)
+router.put('/reset-password', userResetPasswordValidator, runValidation, resetPassword)
 
 // router.get('/secret', requiresLogin, (req, res) => {
 //     res.json({

@@ -180,13 +180,13 @@ exports.forgotPassword = (req, res) => {
             .then(data => {
                 console.log('SES reset password success', data)
                 return res.json({
-                    message: `Email has been sent to ${email}. Click on the link to reset your password`
+                    success: `Email has been sent to ${email}. Click on the link to reset your password`
                 })
             })
             .catch(err => {
                 console.log('SES reset password failed', err)
                 return res.json({
-                    message: `We could not verify your email please try again`
+                    error: `We could not verify your email please try again`
                 })
             })
         })
@@ -229,7 +229,7 @@ exports.resetPassword = (req, res) => {
                 }
 
                 res.json({
-                    message: 'Your password has been reset. You can login with your new password'
+                    success: 'Your password has been reset. You can login with your new password'
                 })
             })
         })
