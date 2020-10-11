@@ -6,7 +6,7 @@ const {requiresLogin, adminMiddleware} = require('../controllers/auth')
 const {create, list, read, update, remove} = require('../controllers/category')
 
 
-router.post('/category', createCategoryValidator, runValidation, requiresLogin, adminMiddleware, create)
+router.post('/category', requiresLogin, adminMiddleware, create)
 router.get('/categories', list)
 router.get('/category/:slug', read)
 router.put('/category/:slug', updateCategoryValidator, requiresLogin, adminMiddleware, update)
