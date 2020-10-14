@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+const {ObjectId} = mongoose.Schema
 
 const linkSchema = new Schema(
 {
@@ -22,10 +23,12 @@ const linkSchema = new Schema(
     },
     postedBy: {
         type: ObjectId,
-        ref: 'User',
+        ref: 'User'
     },
     categories: [{
-        type: ObjectId, ref: 'Category', required: true
+        type: ObjectId, 
+        ref: 'Category', 
+        required: true
     }],
     type: {
         type: String,
