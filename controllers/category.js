@@ -75,7 +75,7 @@ const S3 = new AWS.S3({
 exports.create = (req, res) => {
     const {name, content, image} = req.body
     // image data
-    const base64Data = new Buffer.from(image.replace(/^data:image\/w+;base64,/, ''), 'base64')
+    const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64')
     console.log(image)
     console.log(base64Data)
     const type = image.split(';')[0].split('/')[1]
@@ -111,6 +111,8 @@ exports.create = (req, res) => {
         console.log('AWS UPLOAD DATA', data)
         category.image.url = data.Location
         category.image.key = data.key
+        // posted by
+        category.postedBy = req.user._id
 
         category.save((err, success) => {
             if(err) {
