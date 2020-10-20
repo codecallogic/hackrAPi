@@ -1,9 +1,11 @@
 const Category = require('../models/category')
+const Link = require('../models/link')
 const slugify = require('slugify')
 const formidable = require('formidable')
 const AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
+const { find } = require('lodash')
 
 const S3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -73,11 +75,11 @@ const S3 = new AWS.S3({
 // }
 
 exports.create = (req, res) => {
-    const {name, content, image} = req.body
+    const {name, content, image, user} = req.body
+    console.log(image)
+    // console.log(base64Data)
     // image data
     const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64')
-    console.log(image)
-    console.log(base64Data)
     const type = image.split(';')[0].split('/')[1]
 
     const slug = slugify(name)
@@ -112,7 +114,7 @@ exports.create = (req, res) => {
         category.image.url = data.Location
         category.image.key = data.key
         // posted by
-        category.postedBy = req.user._id
+        category.postedBy = user._id
 
         category.save((err, success) => {
             if(err) {
@@ -158,7 +160,33 @@ exports.list = (req, res) => {
 }
 
 exports.read = (req, res) => {
-    //
+    const {slug} = req.params
+    let limit = req.body.limit ? parseInt(req.body.limit) : 10
+    let skip = req.body.skip ? parseInt(req.body.skip) : 0
+
+    Category.findOne({slug})
+        .populate('postedBy', '_id name username')
+        .exec( (err, category) => {
+            if(err){
+                return res.status(400).json({
+                    error: 'Could not load category'
+                })
+            }
+
+            Link.find({ categories: category})
+                .populate('postedBy', '_id name username')
+                .populate('categories', 'name')
+                .sort({createdAt: -1})
+                .limit(limit)
+                .skip(skip)
+                .exec( (err, links) => {
+                    if(err){
+                        return res.status(400).json({error: 'Could not load links of category'})
+                    }
+                    res.json({category, links})
+                })
+
+        })
 }
 
 exports.update = (req, res) => {

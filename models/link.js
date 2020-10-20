@@ -9,12 +9,14 @@ const linkSchema = new Schema(
         trim: true,
         required: true,
         max: 256,
+        unique: true
     },
     url: {
         type: String,
         trim: true,
         required: true,
         max: 256,
+        unique: true
     },
     slug: {
         type: String,
@@ -32,11 +34,11 @@ const linkSchema = new Schema(
     }],
     type: {
         type: String,
-        default: 'Free',
+        default: 'free',
     },
     medium: {
         type: String,
-        default: 'Video',
+        default: 'video',
     },
     clicks: {
         type: Number,
