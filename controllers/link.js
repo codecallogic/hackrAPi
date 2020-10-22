@@ -32,6 +32,19 @@ exports.list = (req, res) => {
     })
 }
 
+exports.clickCount = (req, res) => {
+    console.log(req.body)
+    const {linkId} = req.body
+    Link.findByIdAndUpdate(linkId, {$inc: {clicks: 1}}, {upsert: true, new: true}, (err, results) => {
+        if(err){
+            return res.status(400).res.json({
+                error: 'Could not update view count'
+            })
+        }
+        res.json(results)
+    })
+}
+
 exports.read = (req, res) => {
     //
 }
