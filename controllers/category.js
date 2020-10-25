@@ -190,9 +190,98 @@ exports.read = (req, res) => {
 }
 
 exports.update = (req, res) => {
-    //
+    const {slug} = req.params
+    const {name, content, image} = req.body
+
+    Category.findOneAndUpdate({slug}, {name, content}, {new: true}, (err, updated) => {
+        if(err){
+            return res.status(400).json({
+                error: 'Could not update category'
+            })
+        }
+        console.log(updated)
+        if(image){
+            // remove image from s3 before uploading a new one
+            const deleteParams = {
+                Bucket: 'codecallogiclab',
+                Key: `hackr/categories/${updated.image.key}`,
+            }
+
+            S3.deleteObject(deleteParams, (err, data) => {
+                if(err) console.log('ERROR DELETING', err)
+                else console.log('DELETED IMAGE', data)
+            })
+
+            // handle upload image
+            const params = {
+                Bucket: 'codecallogiclab',
+                Key: `hackr/categories/${uuidv4()}.${type}`,
+                Body: base64Data,
+                // Access control level
+                ACL: 'public-read',
+                ContentEncoding: 'base64',
+                ContentType: `image/${type}`,
+            }
+
+            Category.findOne({name}, (err, category) => {
+                if(category){
+                    return res.status(400).json({
+                        error: 'Cannot have duplicate categories'
+                    })
+                }
+            })
+        
+            S3.upload(params, (err, data) => {
+                if(err){
+                    console.log(err)
+                    return res.status(400).json({
+                        error: 'Upload to S3 failed'
+                    })
+                }
+                console.log('AWS UPLOAD DATA', data)
+                updated.image.url = data.Location
+                updated.image.key = data.key
+                // posted by
+                updated.postedBy = user._id
+        
+                updated.save((err, success) => {
+                    if(err) {
+                        console.log(err)
+                        return res.status(400).json({ error: 'Cannot save category to database'})
+                    }
+                    return res.json({success: success})
+                })
+            })
+        }else{
+            res.json(updated)
+        }
+    })
 }
 
 exports.remove = (req, res) => {
-    //
+    const {slug} = req.params
+    Category.findOne({slug}, async (err, data) => {
+        if(err) {
+            console.log(err)
+            return res.status(400).json({ error: `Couldn't delete category`})
+        }
+        const deleteParams = {
+            Bucket: 'codecallogiclab',
+            Key: `hackr/categories/${data.image.key}`,
+        }
+
+        console.log(data.image.key)
+
+        try { 
+            await S3.deleteObject(deleteParams, function(err, data){
+                if(err) console.log('ERROR DELETING', err)
+                else console.log('DELETED IMAGE', data)
+                }) 
+                res.json({
+                    message: 'Category was deleted'
+                })
+        } catch (e) {
+            console.log(e)
+        }
+    })
 }
