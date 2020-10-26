@@ -121,7 +121,7 @@ exports.create = (req, res) => {
                 console.log(err)
                 return res.status(400).json({ error: 'Cannot save category to database'})
             }
-            return res.json({success: success})
+            return res.json({success: 'Category created'})
         })
     })
 }
@@ -191,7 +191,11 @@ exports.read = (req, res) => {
 
 exports.update = (req, res) => {
     const {slug} = req.params
-    const {name, content, image} = req.body
+    const {name, content, image, user} = req.body
+    console.log(name, image)
+
+    const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64')
+    const type = image.split(';')[0].split('/')[1]
 
     Category.findOneAndUpdate({slug}, {name, content}, {new: true}, (err, updated) => {
         if(err){
@@ -199,12 +203,12 @@ exports.update = (req, res) => {
                 error: 'Could not update category'
             })
         }
-        console.log(updated)
+        // console.log(updated)
         if(image){
             // remove image from s3 before uploading a new one
             const deleteParams = {
                 Bucket: 'codecallogiclab',
-                Key: `hackr/categories/${updated.image.key}`,
+                Key: updated.image.key,
             }
 
             S3.deleteObject(deleteParams, (err, data) => {
@@ -222,14 +226,6 @@ exports.update = (req, res) => {
                 ContentEncoding: 'base64',
                 ContentType: `image/${type}`,
             }
-
-            Category.findOne({name}, (err, category) => {
-                if(category){
-                    return res.status(400).json({
-                        error: 'Cannot have duplicate categories'
-                    })
-                }
-            })
         
             S3.upload(params, (err, data) => {
                 if(err){
@@ -244,38 +240,40 @@ exports.update = (req, res) => {
                 // posted by
                 updated.postedBy = user._id
         
-                updated.save((err, success) => {
+                updated.save( (err, newData) => {
                     if(err) {
                         console.log(err)
                         return res.status(400).json({ error: 'Cannot save category to database'})
                     }
-                    return res.json({success: success})
+                    return res.json(newData)
                 })
             })
         }else{
-            res.json(updated)
+            return res.json(updated)
         }
     })
 }
 
 exports.remove = (req, res) => {
     const {slug} = req.params
-    Category.findOne({slug}, async (err, data) => {
+    Category.findOneAndRemove({slug}, (err, data) => {
         if(err) {
             console.log(err)
             return res.status(400).json({ error: `Couldn't delete category`})
         }
+        console.log(data)
         const deleteParams = {
             Bucket: 'codecallogiclab',
-            Key: `hackr/categories/${data.image.key}`,
+            Key: `${data.image.key}`,
         }
 
-        console.log(data.image.key)
-
         try { 
-            await S3.deleteObject(deleteParams, function(err, data){
-                if(err) console.log('ERROR DELETING', err)
-                else console.log('DELETED IMAGE', data)
+            S3.deleteObject(deleteParams, (err, data) => {
+                if(err) {
+                    console.log('ERROR DELETING', err)
+                }else{
+                    console.log('DELETED IMAGE', data)
+                }
                 }) 
                 res.json({
                     message: 'Category was deleted'

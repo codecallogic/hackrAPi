@@ -9,7 +9,8 @@ const app = express()
 
 // db
 
-mongoose.connect(process.env.DATABASE_CLOUD, { 
+mongoose.connect(process.env.DATABASE_CLOUD, {
+    useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
