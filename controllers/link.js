@@ -4,20 +4,29 @@ const slugify = require('slugify')
 exports.create = (req, res) => {
     const {title, url, categories, type, medium, user} = req.body
     const slug = url
-    let link = new Link({title, url, categories, type, medium, slug})
 
-    // posted by user
-    link.postedBy = user._id
-
-    // save link
-    link.save((err, data) => {
-        if(err){
-            console.log(err)
+    Link.findOne({title}, (err, duplicate) => {
+        if(duplicate){
             return res.status(400).json({
-                error: 'Link already exists'
+                error: 'Cannot have duplicate titles for category'
             })
         }
-        res.json(data)
+
+        let link = new Link({title, url, categories, type, medium, slug})
+
+        // posted by user
+        link.postedBy = user._id
+
+        // save link
+        link.save((err, data) => {
+            if(err){
+                console.log(err)
+                return res.status(400).json({
+                    error: 'Link already exists'
+                })
+            }
+            res.json(data)
+        })
     })
 }
 

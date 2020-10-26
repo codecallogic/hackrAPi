@@ -129,6 +129,7 @@ exports.authMiddleware = (req, res, next) => {
                 error: 'User not found'
             })
         }
+        // console.log(user)
         req.profile = user
         next()
     })
