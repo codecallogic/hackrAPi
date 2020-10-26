@@ -9,7 +9,7 @@ exports.read = (req, res) => {
             })
         }
         
-        Link.findOne({postedBy: user})
+        Link.find({postedBy: user})
         .populate('categories', 'name slug')
         .populate('postedBy', 'name')
         .sort({createdAt: -1})
