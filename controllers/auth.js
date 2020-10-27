@@ -136,6 +136,7 @@ exports.authMiddleware = (req, res, next) => {
 }
 
 exports.adminMiddleware = (req, res, next) => {
+    // console.log(req.user)
     const authUserId = req.user._id
     User.findOne({_id: authUserId}, (err, user) => {
         if(err || !user){
