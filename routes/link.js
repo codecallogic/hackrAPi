@@ -8,9 +8,9 @@ const {create, list, read, update, remove, clickCount} = require('../controllers
 // createLinkValidator, runValidation, requiresLogin, authMiddleware,
 router.post('/link', create)
 router.get('/links', list)
-router.get('/link/:slug', read)
+router.get('/link/:id', read)
 router.put('/click-count', clickCount)
-router.put('/link/:slug', updateLinkValidator, requiresLogin, authMiddleware, update)
-router.delete('/link/:slug', requiresLogin, authMiddleware, remove)
+router.put('/link/:id', updateLinkValidator, requiresLogin, authMiddleware, update)
+router.delete('/link/:id', requiresLogin, authMiddleware, remove)
 
 module.exports  = router

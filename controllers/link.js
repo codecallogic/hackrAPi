@@ -55,13 +55,41 @@ exports.clickCount = (req, res) => {
 }
 
 exports.read = (req, res) => {
-    //
+    const {id} = req.params
+    Link.findOne({_id: id}, (err, data) => {
+        if(err){
+            return res.status(400).json({
+                error: "Could not find link"
+            })
+        }
+        res.json(data)
+    })
 }
 
 exports.update = (req, res) => {
-    //
+    const {id} = req.params
+    const {title, url, categories, type, medium} = req.body
+
+    Link.findOneAndUpdate({_id: id}, {title, url, categories, type, medium}, {new: true}, (err, updated) => {
+        if(err){
+            return res.status(400).json({
+                error: "Could not update link"
+            })
+        }
+        res.json({updated})
+    })
 }
 
 exports.remove = (req, res) => {
-    //
+    const {id} = req.params
+    Link.findOneAndRemove({_id: id}, (err, data) => {
+        if(err){
+            return res.status(400).json({
+                error: 'Error deleting link'
+            })
+        }
+        res.json({
+            message: 'Link removed successfully'
+        })
+    })
 }
