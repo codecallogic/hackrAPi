@@ -5,6 +5,7 @@ const shortId = require('shortid')
 const { registerEmailParams, forgotPasswordEmailParams } = require('../helpers/email')
 const expressJWT = require('express-jwt')
 const _ = require('lodash')
+const Link = require('../models/link')
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -236,4 +237,22 @@ exports.resetPassword = (req, res) => {
             })
         })
     }
+}
+
+exports.canUpdateDeleteLink = (req, res, next) => {
+    const {id} = req.params
+    Link.findOne({_id: id}, (err, data) => {
+        if(err){
+            return res.status(400).json({
+                error: 'Could not find link'
+            })
+        }
+        let authorizedUser = data.postedBy._id.toString() == req.user._id.toString()
+        if(!authorizedUser){
+            return res.status(400).json({
+                error: 'You are not authorized'
+            })
+        }
+        next()
+    })
 }
