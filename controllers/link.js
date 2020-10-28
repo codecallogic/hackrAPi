@@ -33,10 +33,11 @@ exports.create = (req, res) => {
 exports.list = (req, res) => {
     let limit = req.body.limit ? parseInt(req.body.limit) : 10
     let skip = req.body.skip ? parseInt(req.body.skip) : 0
+    console.log(limit, skip)
     
     Link.find({})
         .populate('postedBy', 'name')
-        .populate('categories', 'name, slug')
+        .populate('categories', 'name slug')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -46,6 +47,7 @@ exports.list = (req, res) => {
                     error: 'Could not list links'
                 })
             }
+            console.log(data.length)
             res.json(data)
     })
 }
@@ -90,6 +92,7 @@ exports.update = (req, res) => {
 }
 
 exports.remove = (req, res) => {
+    // console.log(req.params)
     const {id} = req.params
     Link.findOneAndRemove({_id: id}, (err, data) => {
         if(err){
