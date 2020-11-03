@@ -22,3 +22,8 @@ exports.userResetPasswordValidator = [
     check('newPassword').isLength({ min: 6}).withMessage('Password must be at least 6 characters long'),
     check('resetPasswordLink').not().isEmpty().withMessage('Token is required')
 ]
+
+exports.userUpdateValidator = [
+    check('newPassword').isLength({ min: 6}).withMessage('Password must be at least 6 characters long'),
+    check('resetPasswordLink').not().isEmpty().withMessage('Token is required')
+]
