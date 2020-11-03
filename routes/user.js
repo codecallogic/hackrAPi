@@ -7,6 +7,6 @@ const {read, update} = require('../controllers/user')
 
 router.get('/user', requiresLogin, authMiddleware, read)
 router.get('/admin', requiresLogin, adminMiddleware, read)
-router.get('/user', userUpdateValidator, runValidation, requiresLogin, authMiddleware, update)
+router.put('/user', userUpdateValidator, runValidation, requiresLogin, authMiddleware, update)
 
 module.exports  = router
