@@ -145,3 +145,42 @@ exports.remove = (req, res) => {
         })
     })
 }
+
+exports.popular = (req, res) => {
+    Link.find({})
+        .populate('postedBy', 'name')
+        .sort({clicks: -1})
+        .limit(3)
+        .exec((err, links) => {
+            if(err){
+                return res.status(400).json({
+                    error: 'Links not found'
+                })
+            }
+            res.json(links)
+        })
+}
+
+exports.popularInCategory = (req, res) => {
+    const {slug} = req.params
+    console.log(slug)
+    Category.findOne({slug}, (err, category) => {
+        if(err){
+            return res.status(400).json({
+                error: 'Could not load categories'
+            })
+        }
+
+        Link.find({categories: category})
+        .sort({clicks: -1})
+        .limit(3)
+        .exec((err, links) => {
+            if(err){
+                return res.status(400).json({
+                    error: 'Links not found'
+                })
+            }
+            res.json(links)
+        })
+    })
+}
