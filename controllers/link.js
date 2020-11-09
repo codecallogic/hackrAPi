@@ -157,13 +157,14 @@ exports.popular = (req, res) => {
                     error: 'Links not found'
                 })
             }
+            console.log(links)
             res.json(links)
         })
 }
 
 exports.popularInCategory = (req, res) => {
     const {slug} = req.params
-    console.log(slug)
+
     Category.findOne({slug}, (err, category) => {
         if(err){
             return res.status(400).json({
@@ -172,6 +173,7 @@ exports.popularInCategory = (req, res) => {
         }
 
         Link.find({categories: category})
+        .populate('postedBy', 'name')
         .sort({clicks: -1})
         .limit(3)
         .exec((err, links) => {
@@ -180,6 +182,7 @@ exports.popularInCategory = (req, res) => {
                     error: 'Links not found'
                 })
             }
+            // console.log(links)
             res.json(links)
         })
     })
